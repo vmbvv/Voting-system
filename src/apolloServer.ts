@@ -41,10 +41,19 @@ const DateTimeScalar = new GraphQLScalarType({
     return coerceDate(value);
   },
   parseLiteral(ast) {
-    if (ast.kind === Kind.STRING || ast.kind === Kind.INT) {
-      return coerceDate(ast.value);
+    switch (ast.kind) {
+      case Kind.INT: {
+        const n = Number(ast.value);
+        if (!Number.isFinite(n)) return null;
+        return coerceDate(n);
+      }
+
+      case Kind.STRING:
+        return coerceDate(ast.value);
+
+      default:
+        return null;
     }
-    throw new TypeError("DateTime must be a string or integer");
   },
 });
 

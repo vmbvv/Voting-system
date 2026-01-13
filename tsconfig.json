@@ -1,0 +1,31 @@
+{
+  // Backend TypeScript config (Node.js ESM).
+  // - `npm run dev` runs `.ts` directly in Node
+  // - `npm run build` emits `.js` into `dist/`
+  "compilerOptions": {
+    // File layout (for `npm run build`)
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "sourceMap": true,
+
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "types": ["node"],
+
+    "strict": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true,
+
+    // If you use relative imports like `./file.ts` in source, emit rewrites them to `./file.js` in `dist/`.
+    "rewriteRelativeImportExtensions": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*.ts"]
+}

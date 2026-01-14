@@ -1,14 +1,11 @@
 import { GraphQLScalarType, Kind } from "graphql";
-import { Query } from "mongoose";
 
 export const typeDefs = `
-
-
 type Query {
+  health: String!
 }
 
 type Mutation {
-
 }
 `;
 
@@ -58,6 +55,8 @@ const DateTimeScalar = new GraphQLScalarType({
 });
 
 export const resolvers = {
-  Query: {},
+  Query: {
+    health: () => "ok",
+  },
   Mutation: {},
 };

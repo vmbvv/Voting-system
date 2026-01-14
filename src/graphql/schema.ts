@@ -1,6 +1,6 @@
-import { scalarTypeDefs } from "./scalars.js";
-import { pollTypeDefs } from "../polls/graphql/schema.js";
-import { voteTypeDefs } from "../votes/graphql/schema.js";
+import { scalarTypeDefs } from "./scalars.ts";
+import { pollTypeDefs } from "../polls/graphql/schema.ts";
+import { voteTypeDefs } from "../votes/graphql/schema.ts";
 
 const baseTypeDefs = `
 type Query {

@@ -50,7 +50,7 @@ input CreatePollInput {
   options: [CreatePollOptionInput!]!
   startsAt: DateTime
   endsAt: DateTime
-  allowMultiple: Boolean!
-  anonymousVoting: Boolean!
+  allowMultiple: Boolean
+  anonymousVoting: Boolean
 }
 `;

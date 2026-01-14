@@ -104,7 +104,7 @@ dist
 # vitepress cache directory
 **/.vitepress/cache
 
-# Codex local notes (keep out of git)
+# personal notes
 notes/
 
 # Docusaurus cache and generated files

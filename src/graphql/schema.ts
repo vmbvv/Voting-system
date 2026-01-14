@@ -4,20 +4,20 @@ import { voteTypeDefs } from "../votes/graphql/schema.ts";
 
 const baseTypeDefs = `
 type Query {
-health: String!
-poll(id: ID!): Poll
-pollResults(pollId: ID!): PollResults!
+  health: String!
+  poll(id: ID!): Poll
+  pollResults(pollId: ID!): PollResults!
 }
 
 type Mutation {
-createPoll(input: CreatePollInput!): Poll!
-vote(input: VoteInput!): Vote!
+  createPoll(input: CreatePollInput!): Poll!
+  vote(input: VoteInput!): Vote!
 }
 `;
 
 export const typeDefs = [
   scalarTypeDefs,
-  baseTypeDefs,
   pollTypeDefs,
   voteTypeDefs,
+  baseTypeDefs,
 ];

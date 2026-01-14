@@ -6,7 +6,7 @@ const baseTypeDefs = `
 type Query {
   health: String!
   poll(id: ID!): Poll
-  pollResults(pollId: ID!): PollResults!
+  pollResults(pollId: ID!): PollResults
 }
 
 type Mutation {

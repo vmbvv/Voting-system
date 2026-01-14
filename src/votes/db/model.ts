@@ -1,4 +1,3 @@
-import { validate } from "graphql";
 import mongoose from "mongoose";
 
 const { Schema } = mongoose;

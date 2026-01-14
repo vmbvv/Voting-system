@@ -20,7 +20,7 @@ const VoteSchema = new Schema(
 );
 
 VoteSchema.index({ pollId: 1, userId: 1 }, { unique: true });
-VoteSchema.index({ pollID: 1, createdAt: -1 });
+VoteSchema.index({ pollId: 1, createdAt: -1 });
 VoteSchema.index({ userId: 1, createdAt: -1 });
 
 export const VoteModel =

@@ -4,9 +4,6 @@ export const typeDefs = `
 type Query {
   health: String!
 }
-
-type Mutation {
-}
 `;
 
 const coerceDate = (value: unknown): Date => {
@@ -58,5 +55,4 @@ export const resolvers = {
   Query: {
     health: () => "ok",
   },
-  Mutation: {},
 };

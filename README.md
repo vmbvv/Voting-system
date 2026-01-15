@@ -1,6 +1,11 @@
 # Voting-system
 
-erxes team exercise
+Minimal setup:
+- `npm install`
+- Copy `.env.example` to `.env` and set `MONGODB_URI` + `JWT_SECRET`
+- `npm run dev`
 
-1. npm install - install dependencies
-2. create .env from .env.example
+Optional:
+- `npm run typecheck`
+- `npm run build`
+- `npm start`

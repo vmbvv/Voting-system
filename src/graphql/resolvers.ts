@@ -1,5 +1,6 @@
 import { scalarResolvers } from "./scalars.ts";
 import { pollResolvers } from "../polls/graphql/resolvers.ts";
+import { userResolvers } from "../users/graphql/resolvers.ts";
 
 export const resolvers = {
   ...scalarResolvers,
@@ -8,6 +9,7 @@ export const resolvers = {
     ...pollResolvers.Query,
   },
   Mutation: {
+    ...userResolvers.Mutation,
     ...pollResolvers.Mutation,
   },
 };

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { type InferSchemaType, type Model } from "mongoose";
 
 const { Schema } = mongoose;
 
@@ -34,6 +34,8 @@ const PollSchema = new Schema(
 
 PollSchema.index({ createdBy: 1, createdAt: -1 });
 PollSchema.index({ status: 1, endsAt: 1 });
+type PollDoc = InferSchemaType<typeof PollSchema>;
 
 export const PollModel =
-  mongoose.models.Poll || mongoose.model("Poll", PollSchema);
+  (mongoose.models.Poll as Model<PollDoc>) ||
+  mongoose.model<PollDoc>("Poll", PollSchema);

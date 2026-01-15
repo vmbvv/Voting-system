@@ -6,6 +6,7 @@ import { userTypeDefs } from "../users/graphql/schema.ts";
 const baseTypeDefs = `
 type Query {
   health: String!
+  me: User
   poll(id: ID!): Poll
   pollResults(pollId: ID!): PollResults
 }

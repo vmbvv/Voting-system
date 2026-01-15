@@ -1,9 +1,20 @@
 import bcrypt from "bcryptjs";
 import { UserModel } from "../db/model.ts";
 import { signToken, type AuthUser } from "../../auth/jwt.ts";
+import { badUserInput, conflict, unauthenticated } from "../../shared/errors.ts";
 import type { LoginArgs, RegisterArgs } from "../types.ts";
 
 export const userResolvers = {
+  Query: {
+    me: async (
+      _parent: unknown,
+      _args: Record<string, never>,
+      context: { user: AuthUser | null }
+    ) => {
+      if (!context.user) return null;
+      return UserModel.findById(context.user._id).exec();
+    },
+  },
   Mutation: {
     register: async (_parent: unknown, args: RegisterArgs) => {
       const email = args.input.email?.trim().toLowerCase();
@@ -12,20 +23,20 @@ export const userResolvers = {
       const name = args.input.name?.trim();
 
       if (!email) {
-        throw new Error("Email is required");
+        throw badUserInput("Email is required");
       }
 
       if (!password || password.length < 6) {
-        throw new Error("Password must be at least 6 characters");
+        throw badUserInput("Password must be at least 6 characters");
       }
 
       if (password !== confirmPassword) {
-        throw new Error("Passwords do not match");
+        throw badUserInput("Passwords do not match");
       }
 
       const existing = await UserModel.findOne({ email }).exec();
       if (existing) {
-        throw new Error("Email is already in use");
+        throw conflict("Email is already in use");
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
@@ -54,17 +65,17 @@ export const userResolvers = {
       const password = args.input.password;
 
       if (!email || !password) {
-        throw new Error("Invalid credentials");
+        throw unauthenticated("Invalid credentials");
       }
 
       const user = await UserModel.findOne({ email }).exec();
       if (!user) {
-        throw new Error("Invalid credentials");
+        throw unauthenticated("Invalid credentials");
       }
 
       const ok = await bcrypt.compare(password, user.passwordHash);
       if (!ok) {
-        throw new Error("Invalid credentials");
+        throw unauthenticated("Invalid credentials");
       }
 
       const authUser: AuthUser = {

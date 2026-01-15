@@ -1,4 +1,6 @@
 import { PollModel } from "../db/model.ts";
+import { badUserInput, unauthenticated } from "../../shared/errors.ts";
+import { isValidObjectId } from "../../shared/utils.ts";
 import type {
   CreatePollArgs,
   PollArgs,
@@ -9,10 +11,16 @@ import type {
 export const pollResolvers = {
   Query: {
     poll: async (_parent: unknown, args: PollArgs) => {
+      if (!isValidObjectId(args.id)) {
+        throw badUserInput("Invalid poll id");
+      }
       return PollModel.findById(args.id).exec();
     },
 
     pollResults: async (_parent: unknown, args: PollResultsArgs) => {
+      if (!isValidObjectId(args.pollId)) {
+        throw badUserInput("Invalid poll id");
+      }
       const poll = await PollModel.findById(args.pollId).exec();
       if (!poll) return null;
 
@@ -44,12 +52,12 @@ export const pollResolvers = {
       context: { user: { _id: string } | null }
     ) => {
       if (!context.user) {
-        throw new Error("Authentication required");
+        throw unauthenticated();
       }
 
       const title = args.input.title?.trim();
       if (!title) {
-        throw new Error("Title is required");
+        throw badUserInput("Title is required");
       }
 
       const rawOptions = args.input.options ?? [];
@@ -58,14 +66,14 @@ export const pollResolvers = {
         .filter((text): text is string => Boolean(text));
 
       if (normalizedOptions.length < 2) {
-        throw new Error("At least 2 options are required");
+        throw badUserInput("At least 2 options are required");
       }
 
       const uniqueOptions = new Set(
         normalizedOptions.map((text) => text.toLowerCase())
       );
       if (uniqueOptions.size !== normalizedOptions.length) {
-        throw new Error("Options must be unique");
+        throw badUserInput("Options must be unique");
       }
 
       const description = args.input.description?.trim() ?? null;
@@ -73,7 +81,7 @@ export const pollResolvers = {
       const endsAt = args.input.endsAt ?? null;
 
       if (startsAt && endsAt && endsAt <= startsAt) {
-        throw new Error("endsAt must be after startsAt");
+        throw badUserInput("endsAt must be after startsAt");
       }
 
       const poll = await PollModel.create({

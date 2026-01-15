@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { UserModel } from "../db/model.ts";
 import { signToken, type AuthUser } from "../../auth/jwt.ts";
 import { badUserInput, conflict, unauthenticated } from "../../shared/errors.ts";
+import { isValidObjectId } from "../../shared/utils.ts";
 import type { LoginArgs, RegisterArgs } from "../types.ts";
 
 export const userResolvers = {
@@ -12,6 +13,9 @@ export const userResolvers = {
       context: { user: AuthUser | null }
     ) => {
       if (!context.user) return null;
+      if (!isValidObjectId(context.user._id)) {
+        throw unauthenticated("Invalid user");
+      }
       return UserModel.findById(context.user._id).exec();
     },
   },

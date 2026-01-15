@@ -54,6 +54,9 @@ export const pollResolvers = {
       if (!context.user) {
         throw unauthenticated();
       }
+      if (!isValidObjectId(context.user._id)) {
+        throw unauthenticated("Invalid user");
+      }
 
       const title = args.input.title?.trim();
       if (!title) {
@@ -82,6 +85,12 @@ export const pollResolvers = {
 
       if (startsAt && endsAt && endsAt <= startsAt) {
         throw badUserInput("endsAt must be after startsAt");
+      }
+      if (endsAt) {
+        const now = new Date();
+        if (endsAt <= now) {
+          throw badUserInput("endsAt must be in the future");
+        }
       }
 
       const poll = await PollModel.create({

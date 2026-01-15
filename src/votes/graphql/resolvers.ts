@@ -12,6 +12,35 @@ import {
 import { isValidObjectId, normalizeObjectId } from "../../shared/utils.ts";
 import { GraphQLError } from "graphql";
 
+const isTransactionNotSupported = (err: unknown): boolean => {
+  const error = err as { code?: number; message?: unknown };
+  if (error.code === 20) return true;
+  if (typeof error.message !== "string") return false;
+  return (
+    error.message.includes("Transaction numbers are only allowed") ||
+    error.message.includes("replica set member") ||
+    error.message.includes("replica set")
+  );
+};
+
+const throwVoteError = (err: unknown): never => {
+  if (err instanceof GraphQLError) {
+    throw err;
+  }
+  const error = err as { code?: number; errorLabels?: string[] };
+  if (error.code === 11000) {
+    throw conflict("You have already voted in this poll");
+  }
+  if (error.errorLabels?.includes("TransientTransactionError")) {
+    throw new GraphQLError("Vote failed, please retry", {
+      extensions: { code: "INTERNAL_SERVER_ERROR" },
+    });
+  }
+  throw new GraphQLError("Vote failed", {
+    extensions: { code: "INTERNAL_SERVER_ERROR" },
+  });
+};
+
 export const voteResolvers = {
   Mutation: {
     vote: async (
@@ -104,26 +133,17 @@ export const voteResolvers = {
         });
       }
 
-      const session = await mongoose.startSession();
-      try {
-        try {
-          session.startTransaction();
-        } catch (err) {
-          throw new GraphQLError(
-            "Transactions require a replica set (MongoDB Atlas is supported)",
-            { extensions: { code: "INTERNAL_SERVER_ERROR" } }
-          );
-        }
-
+      const userId = context.user._id;
+      const executeVote = async (session?: mongoose.ClientSession) => {
         const [vote] = await VoteModel.create(
           [
             {
               pollId: poll._id,
-              userId: context.user._id,
+              userId,
               optionIds: normalizedOptionIds,
             },
           ],
-          { session }
+          session ? { session } : undefined
         );
 
         await PollModel.updateOne(
@@ -136,29 +156,44 @@ export const voteResolvers = {
           },
           {
             arrayFilters: [{ "opt._id": { $in: optionObjectIds } }],
-            session,
+            ...(session ? { session } : {}),
           }
         ).exec();
 
+        return vote;
+      };
+
+      const session = await mongoose.startSession();
+      let startedTransaction = false;
+      try {
+        try {
+          session.startTransaction();
+          startedTransaction = true;
+        } catch (err) {
+          if (!isTransactionNotSupported(err)) {
+            throw err;
+          }
+        }
+
+        if (!startedTransaction) {
+          return await executeVote();
+        }
+
+        const vote = await executeVote(session);
         await session.commitTransaction();
         return vote;
       } catch (err) {
-        await session.abortTransaction();
-        if (err instanceof GraphQLError) {
-          throw err;
+        if (startedTransaction) {
+          await session.abortTransaction();
         }
-        const error = err as { code?: number };
-        if (error.code === 11000) {
-          throw conflict("You have already voted in this poll");
+        if (startedTransaction && isTransactionNotSupported(err)) {
+          try {
+            return await executeVote();
+          } catch (fallbackErr) {
+            throwVoteError(fallbackErr);
+          }
         }
-        if ((error as { errorLabels?: string[] }).errorLabels?.includes("TransientTransactionError")) {
-          throw new GraphQLError("Vote failed, please retry", {
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          });
-        }
-        throw new GraphQLError("Vote failed", {
-          extensions: { code: "INTERNAL_SERVER_ERROR" },
-        });
+        throwVoteError(err);
       } finally {
         session.endSession();
       }

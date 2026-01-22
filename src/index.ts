@@ -3,7 +3,16 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import mongoose from "mongoose";
 import { typeDefs, resolvers } from "./apolloServer.ts";
-import { type AuthUser, getUserFromAuthHeader } from "./auth/jwt.ts";
+import {
+  type AuthUser,
+  getUserFromAuthHeader,
+  getUserFromToken,
+} from "./auth/jwt.ts";
+import {
+  getTokenFromCookieHeader,
+  setAuthCookie,
+  clearAuthCookie,
+} from "./auth/cookie.ts";
 
 dotenv.config({ override: true, quiet: true });
 
@@ -17,6 +26,8 @@ console.log("MongoDB connected!");
 
 export interface IContext {
   user: AuthUser | null;
+  setAuthCookie: (token: string) => void;
+  clearAuthCookie: () => void;
 }
 
 const server = new ApolloServer<IContext>({
@@ -30,9 +41,15 @@ const port = Number.isFinite(portFromEnv) ? portFromEnv : 4000;
 const { url } = await startStandaloneServer(server, {
   listen: { port },
   context: async ({ req, res }) => {
-    const user = getUserFromAuthHeader(req.headers.authorization);
+    const cookieToken = getTokenFromCookieHeader(req.headers.cookie);
+    const user =
+      getUserFromToken(cookieToken) ??
+      getUserFromAuthHeader(req.headers.authorization);
+
     return {
       user,
+      setAuthCookie: (token: string) => setAuthCookie(res, token),
+      clearAuthCookie: () => clearAuthCookie(res),
     };
   },
 });

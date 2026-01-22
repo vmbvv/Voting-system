@@ -9,13 +9,20 @@ type Query {
   me: User
   poll(id: ID!): Poll
   pollResults(pollId: ID!): PollResults
+  polls(input: PollsInput): PollPage!
+  pollOptionVoters(input: PollOptionVotersInput!): VoterPage!
+  myVote(pollId: ID!): Vote
 }
 
 type Mutation {
   register(input: RegisterInput!): AuthPayload!
   login(input: LoginInput!): AuthPayload!
+  logout: Boolean!
   createPoll(input: CreatePollInput!): Poll!
   vote(input: VoteInput!): Vote!
+  changeVote(input: VoteInput!): Vote!
+  closePoll(id: ID!): Poll!
+  deletePoll(id: ID!): Boolean!
 }
 `;
 

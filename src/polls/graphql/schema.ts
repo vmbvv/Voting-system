@@ -4,6 +4,15 @@ enum PollStatus {
   CLOSED
 }
 
+enum PollSortField {
+  CREATED_AT
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
 type PollOption {
   id: ID!
   text: String!
@@ -38,6 +47,46 @@ type PollResults {
   pollId: ID!
   totalVotes: Int!
   options: [PollResultOption!]!
+}
+
+type VoterPage {
+  items: [User!]!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type PollPage {
+  items: [Poll!]!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+input PollSortInput {
+  field: PollSortField = CREATED_AT
+  order: SortOrder = DESC
+}
+
+input PollsInput {
+  status: PollStatus
+  search: String
+  sort: PollSortInput
+  page: Int = 1
+  pageSize: Int = 5
+}
+
+input PollOptionVotersInput {
+  pollId: ID!
+  optionId: ID!
+  page: Int = 1
+  pageSize: Int = 20
 }
 
 input CreatePollOptionInput {

@@ -6,3 +6,7 @@ export type VoteInput = {
 export type VoteArgs = {
   input: VoteInput;
 };
+
+export type MyVoteArgs = {
+  pollId: string;
+};

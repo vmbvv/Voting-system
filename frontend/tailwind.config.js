@@ -9,17 +9,17 @@ export default {
       },
       colors: {
         ink: {
-          900: "var(--ink-900)",
-          700: "var(--ink-700)",
-          500: "var(--ink-500)",
+          900: "rgb(var(--ink-900) / <alpha-value>)",
+          700: "rgb(var(--ink-700) / <alpha-value>)",
+          500: "rgb(var(--ink-500) / <alpha-value>)",
         },
         surface: {
-          DEFAULT: "var(--surface)",
-          alt: "var(--surface-alt)",
+          DEFAULT: "rgb(var(--surface) / <alpha-value>)",
+          alt: "rgb(var(--surface-alt) / <alpha-value>)",
         },
         accent: {
-          DEFAULT: "var(--accent)",
-          warm: "var(--accent-warm)",
+          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+          warm: "rgb(var(--accent-warm) / <alpha-value>)",
         },
       },
       boxShadow: {

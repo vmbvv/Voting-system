@@ -1,7 +1,11 @@
 import bcrypt from "bcryptjs";
 import { UserModel } from "../db/model.ts";
 import { signToken, type AuthUser } from "../../auth/jwt.ts";
-import { badUserInput, conflict, unauthenticated } from "../../shared/errors.ts";
+import {
+  badUserInput,
+  conflict,
+  unauthenticated,
+} from "../../shared/errors.ts";
 import { isValidObjectId } from "../../shared/utils.ts";
 import type { LoginArgs, RegisterArgs } from "../types.ts";
 
@@ -10,7 +14,7 @@ export const userResolvers = {
     me: async (
       _parent: unknown,
       _args: Record<string, never>,
-      context: { user: AuthUser | null }
+      context: { user: AuthUser | null },
     ) => {
       if (!context.user) return null;
       if (!isValidObjectId(context.user._id)) {
@@ -20,7 +24,11 @@ export const userResolvers = {
     },
   },
   Mutation: {
-    register: async (_parent: unknown, args: RegisterArgs) => {
+    register: async (
+      _parent: unknown,
+      args: RegisterArgs,
+      context: { setAuthCookie: (token: string) => void },
+    ) => {
       const email = args.input.email?.trim().toLowerCase();
       const password = args.input.password;
       const confirmPassword = args.input.confirmPassword;
@@ -60,11 +68,16 @@ export const userResolvers = {
       }
 
       const token = signToken(authUser);
+      context.setAuthCookie(token);
 
       return { token, user };
     },
 
-    login: async (_parent: unknown, args: LoginArgs) => {
+    login: async (
+      _parent: unknown,
+      args: LoginArgs,
+      context: { setAuthCookie: (token: string) => void },
+    ) => {
       const email = args.input.email?.trim().toLowerCase();
       const password = args.input.password;
 
@@ -91,7 +104,7 @@ export const userResolvers = {
       }
 
       const token = signToken(authUser);
-
+      context.setAuthCookie(token);
       return { token, user };
     },
   },

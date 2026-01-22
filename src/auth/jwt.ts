@@ -30,17 +30,16 @@ export const signToken = (user: AuthUser): string => {
   return jwt.sign(payload, secret, { expiresIn: "7d" });
 };
 
-export const getUserFromAuthHeader = (
-  authHeader: string | undefined
+export const getUserFromToken = (
+  token: string | undefined | null,
 ): AuthUser | null => {
-  if (!authHeader) return null;
-  const [scheme, token] = authHeader.split(" ");
-  if (scheme !== "Bearer" || !token) return null;
+  if (!token) return null;
 
   try {
     const secret = getJwtSecret();
     const decoded = jwt.verify(token, secret);
     if (typeof decoded === "string") return null;
+
     const payload = decoded as JwtPayload & { email?: unknown; name?: unknown };
     if (!payload.sub || typeof payload.sub !== "string") return null;
     if (!payload.email || typeof payload.email !== "string") return null;
@@ -52,4 +51,13 @@ export const getUserFromAuthHeader = (
   } catch {
     return null;
   }
+};
+
+export const getUserFromAuthHeader = (
+  authHeader: string | undefined,
+): AuthUser | null => {
+  if (!authHeader) return null;
+  const [scheme, token] = authHeader.split(" ");
+  if (scheme !== "Bearer" || !token) return null;
+  return getUserFromToken(token);
 };

@@ -34,6 +34,7 @@ const PollSchema = new Schema(
 
 PollSchema.index({ createdBy: 1, createdAt: -1 });
 PollSchema.index({ status: 1, endsAt: 1 });
+PollSchema.index({ title: "text", description: "text" });
 type PollDoc = InferSchemaType<typeof PollSchema>;
 
 export const PollModel =

@@ -107,5 +107,14 @@ export const userResolvers = {
       context.setAuthCookie(token);
       return { token, user };
     },
+
+    logout: (
+      _parent: unknown,
+      _args: Record<string, never>,
+      context: { clearAuthCookie: () => void },
+    ) => {
+      context.clearAuthCookie();
+      return true;
+    },
   },
 };

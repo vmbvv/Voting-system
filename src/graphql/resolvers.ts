@@ -9,6 +9,7 @@ export const resolvers = {
     health: () => "ok",
     ...userResolvers.Query,
     ...pollResolvers.Query,
+    ...voteResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,

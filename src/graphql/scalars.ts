@@ -50,17 +50,3 @@ scalar DateTime
 export const scalarResolvers = {
   DateTime: DateTimeScalar,
 };
-export const baseTypeDefs = `
-type Query {
-  health: String!
-  poll(id: ID!): Poll
-  pollResults(pollId: ID!): PollResults
-}
-
-type Mutation {
-  registe(input: RegisterInput!): AuthPayload!
-  login(input: LoginInput!): Auth!
-  createPoll(input: CreatePollInput!): Poll!
-  vote(input: VoteInput!): Vote!
-}
-`;
